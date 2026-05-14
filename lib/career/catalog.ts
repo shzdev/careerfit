@@ -1,45 +1,57 @@
 export const skillCatalog = {
-  Programming: ["Java", "JavaScript", "TypeScript", "Python", "PHP", "C#", "Go"],
-  Frontend: ["HTML", "CSS", "React", "Next.js", "Vue", "Angular", "Tailwind CSS"],
-  Backend: ["Node.js", "Express", "Spring Boot", "Laravel", "Django", "REST API", "GraphQL"],
-  Database: ["MySQL", "PostgreSQL", "MongoDB", "Firebase", "Supabase"],
-  DevOps: ["Git", "Docker", "Linux", "AWS", "CI/CD", "Kubernetes"],
-  Testing: ["Unit Testing", "Jest", "JUnit", "PHPUnit", "Cypress"],
-  Design: ["Figma", "UI Design", "UX Research", "Responsive Design"],
-  AI: ["Prompt Engineering", "AI API Integration", "Hugging Face", "OpenAI API", "LangChain"]
+  Programming: ["JavaScript", "TypeScript", "Java", "Python", "PHP", "C#", "Go", "Kotlin", "Swift", "Dart", "SQL"],
+  Frontend: ["HTML", "CSS", "React", "Next.js", "Vue", "Nuxt", "Angular", "Tailwind CSS", "Bootstrap", "jQuery"],
+  Backend: ["Node.js", "Express", "NestJS", "Spring Boot", "Laravel", "Django", "FastAPI", "ASP.NET Core", "REST API", "GraphQL"],
+  Database: ["MySQL", "PostgreSQL", "MongoDB", "Firebase", "Supabase", "Redis", "Oracle"],
+  CMSAndWebBuilders: ["WordPress", "Elementor", "WooCommerce", "Shopify", "Wix", "Webflow", "Framer"],
+  DesignTools: ["Figma", "Adobe XD", "Adobe Photoshop", "Adobe Illustrator", "Canva"],
+  Mobile: ["Flutter", "React Native", "Android Studio", "Xcode", "Kotlin", "Swift", "Firebase"],
+  Testing: ["Postman", "Selenium", "Cypress", "Playwright", "Jest", "JUnit", "PHPUnit", "Cucumber", "SoapUI"],
+  DataAndBI: ["Python", "SQL", "Pandas", "NumPy", "Power BI", "Tableau", "Looker Studio", "Excel", "Google Sheets"],
+  AIAndML: ["Python", "TensorFlow", "PyTorch", "scikit-learn", "LangChain", "Hugging Face", "OpenAI API", "Vector Database", "RAG", "LLM API Integration"],
+  DevOpsAndCloud: ["Git", "GitHub", "Linux", "Docker", "Kubernetes", "AWS", "Azure", "GCP", "Terraform", "CI/CD", "Nginx", "Apache", "Vercel", "Netlify"]
 } as const;
 
 export const allowedRoleCatalog = [
-  "Java Developer",
+  "Web Developer",
+  "Web Designer",
+  "UI/UX Designer",
   "Frontend Developer",
   "React Developer",
+  "Next.js Developer",
   "Backend Developer",
   "Node.js Developer",
-  "Full Stack Developer",
+  "Java Developer",
   "Laravel Developer",
-  "PHP Developer",
+  "Full Stack Developer",
   "WordPress Developer",
   "Mobile App Developer",
-  "QA Tester",
+  "Flutter Developer",
+  "Android Developer",
+  "iOS Developer",
+  "QA Engineer",
+  "Automation Tester",
   "Data Analyst",
-  "DevOps Junior Engineer",
-  "UI/UX Developer",
-  "AI Integration Developer"
+  "BI Developer",
+  "Data Engineer",
+  "Data Scientist",
+  "AI/ML Engineer",
+  "AI Integration Developer",
+  "DevOps Engineer",
+  "Cloud Engineer"
 ] as const;
 
 export type SkillCategory = keyof typeof skillCatalog;
 export type SkillName = (typeof skillCatalog)[SkillCategory][number];
 export type RoleTitle = (typeof allowedRoleCatalog)[number];
 
-export const allSkills = Object.values(skillCatalog).flat() as SkillName[];
+export const allSkills = [...new Set(Object.values(skillCatalog).flat())] as SkillName[];
 
-export const skillToCategory = allSkills.reduce<Record<string, SkillCategory>>((acc, skill) => {
-  for (const [category, skills] of Object.entries(skillCatalog)) {
-    if ((skills as readonly string[]).includes(skill)) {
-      acc[skill] = category as SkillCategory;
-      break;
-    }
+export const skillToCategory = Object.entries(skillCatalog).reduce<Record<string, SkillCategory>>((acc, [category, skills]) => {
+  for (const skill of skills) {
+    acc[skill] ??= category as SkillCategory;
   }
+
   return acc;
 }, {});
 
@@ -48,98 +60,179 @@ export type RoleProfile = {
   coreSkills: string[];
   helpfulSkills: string[];
   projectTheme: string;
+  requiredSkillGroups?: string[][];
 };
 
 export const roleProfiles: RoleProfile[] = [
   {
-    title: "Java Developer",
-    coreSkills: ["Java", "Spring Boot", "REST API", "Git", "JUnit", "MySQL"],
-    helpfulSkills: ["Docker", "PostgreSQL", "Unit Testing"],
-    projectTheme: "Build a Spring Boot CRUD API with validation and tests."
+    title: "Web Developer",
+    coreSkills: ["HTML", "CSS", "JavaScript", "PHP", "MySQL", "REST API"],
+    helpfulSkills: ["WordPress", "Laravel", "Bootstrap", "jQuery", "Git", "Postman"],
+    projectTheme: "Build a responsive business website with a contact form and database-backed admin flow."
+  },
+  {
+    title: "Web Designer",
+    coreSkills: ["Figma", "Adobe Photoshop", "Canva", "HTML", "CSS"],
+    helpfulSkills: ["WordPress", "Wix", "Webflow", "Framer", "Shopify", "Adobe Illustrator"],
+    projectTheme: "Design and publish a polished landing page for a local service business."
+  },
+  {
+    title: "UI/UX Designer",
+    coreSkills: ["Figma", "Adobe XD", "Adobe Photoshop", "Adobe Illustrator", "Canva"],
+    helpfulSkills: ["HTML", "CSS", "Webflow", "Framer"],
+    projectTheme: "Create a clickable app prototype with user flows, components, and handoff notes."
   },
   {
     title: "Frontend Developer",
-    coreSkills: ["HTML", "CSS", "JavaScript", "Responsive Design", "Git"],
-    helpfulSkills: ["TypeScript", "React", "Tailwind CSS", "Figma"],
-    projectTheme: "Build a responsive portfolio with reusable components."
+    coreSkills: ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Tailwind CSS"],
+    helpfulSkills: ["Next.js", "Vue", "Angular", "Bootstrap", "Git", "Vercel"],
+    projectTheme: "Build a responsive frontend dashboard with reusable components and API data."
   },
   {
     title: "React Developer",
-    coreSkills: ["JavaScript", "TypeScript", "React", "HTML", "CSS", "Git"],
-    helpfulSkills: ["Next.js", "Jest", "REST API", "Tailwind CSS"],
-    projectTheme: "Build a React dashboard consuming a public API."
+    coreSkills: ["React", "JavaScript", "TypeScript", "HTML", "CSS", "REST API"],
+    helpfulSkills: ["Next.js", "Tailwind CSS", "Jest", "Git", "Vercel"],
+    projectTheme: "Build a React dashboard that consumes an API and handles loading, error, and empty states.",
+    requiredSkillGroups: [["React"]]
+  },
+  {
+    title: "Next.js Developer",
+    coreSkills: ["Next.js", "React", "TypeScript", "JavaScript", "REST API", "Tailwind CSS"],
+    helpfulSkills: ["Vercel", "PostgreSQL", "Supabase", "Git", "Playwright"],
+    projectTheme: "Build a Next.js product page with API routes, validation, and deployment notes.",
+    requiredSkillGroups: [["Next.js"], ["React"]]
   },
   {
     title: "Backend Developer",
-    coreSkills: ["REST API", "Node.js", "Express", "Database", "Git", "Unit Testing"],
-    helpfulSkills: ["PostgreSQL", "Docker", "GraphQL", "Linux"],
-    projectTheme: "Build a secure REST API with database persistence."
+    coreSkills: ["REST API", "SQL", "Node.js", "Express", "PostgreSQL", "Postman"],
+    helpfulSkills: ["NestJS", "Spring Boot", "Laravel", "Django", "FastAPI", "Docker"],
+    projectTheme: "Build a secure REST API with validation, database persistence, and API documentation."
   },
   {
     title: "Node.js Developer",
-    coreSkills: ["JavaScript", "Node.js", "Express", "REST API", "Git", "MongoDB"],
-    helpfulSkills: ["TypeScript", "PostgreSQL", "Jest", "Docker"],
-    projectTheme: "Build a Node.js API with auth-like validation and tests."
+    coreSkills: ["Node.js", "JavaScript", "TypeScript", "Express", "REST API", "MongoDB"],
+    helpfulSkills: ["NestJS", "PostgreSQL", "Jest", "Docker", "Git"],
+    projectTheme: "Build a Node.js API with database models, request validation, and automated tests.",
+    requiredSkillGroups: [["Node.js"]]
   },
   {
-    title: "Full Stack Developer",
-    coreSkills: ["HTML", "CSS", "JavaScript", "React", "Node.js", "REST API", "Database", "Git"],
-    helpfulSkills: ["TypeScript", "Next.js", "PostgreSQL", "Testing"],
-    projectTheme: "Build a full-stack task app with API routes and persistence."
+    title: "Java Developer",
+    coreSkills: ["Java", "Spring Boot", "REST API", "MySQL", "JUnit", "Git"],
+    helpfulSkills: ["PostgreSQL", "Docker", "Postman", "Linux"],
+    projectTheme: "Build a Spring Boot CRUD API with validation, tests, and database persistence.",
+    requiredSkillGroups: [["Java"]]
   },
   {
     title: "Laravel Developer",
-    coreSkills: ["PHP", "Laravel", "MySQL", "REST API", "Git", "PHPUnit"],
-    helpfulSkills: ["Docker", "Tailwind CSS", "JavaScript"],
-    projectTheme: "Build a Laravel CRUD app with policies and validation."
+    coreSkills: ["Laravel", "PHP", "MySQL", "REST API", "PHPUnit", "Git"],
+    helpfulSkills: ["Tailwind CSS", "JavaScript", "Docker", "Postman"],
+    projectTheme: "Build a Laravel CRUD app with authentication-style validation and policy-aware resources.",
+    requiredSkillGroups: [["Laravel"]]
   },
   {
-    title: "PHP Developer",
-    coreSkills: ["PHP", "MySQL", "HTML", "CSS", "JavaScript", "Git"],
-    helpfulSkills: ["Laravel", "REST API", "PHPUnit"],
-    projectTheme: "Build a PHP inventory app with forms and database queries."
+    title: "Full Stack Developer",
+    coreSkills: ["HTML", "CSS", "JavaScript", "REST API", "Node.js", "PostgreSQL", "Git"],
+    helpfulSkills: ["React", "Next.js", "Laravel", "MySQL", "MongoDB", "Docker", "Vercel"],
+    projectTheme: "Build a full-stack task app with a frontend, API, database persistence, and deployment notes.",
+    requiredSkillGroups: [["Frontend"], ["Backend"], ["Database"]]
   },
   {
     title: "WordPress Developer",
-    coreSkills: ["PHP", "HTML", "CSS", "JavaScript", "MySQL", "Responsive Design"],
-    helpfulSkills: ["Figma", "Git", "UI Design"],
-    projectTheme: "Build a custom WordPress theme section and contact flow."
+    coreSkills: ["WordPress", "PHP", "MySQL", "HTML", "CSS", "JavaScript"],
+    helpfulSkills: ["Elementor", "WooCommerce", "Figma", "Git", "Apache"],
+    projectTheme: "Build a custom WordPress business site with theme customization and a working contact flow.",
+    requiredSkillGroups: [["WordPress"]]
   },
   {
     title: "Mobile App Developer",
-    coreSkills: ["JavaScript", "TypeScript", "React", "REST API", "Firebase", "Git"],
-    helpfulSkills: ["UI Design", "Responsive Design", "Unit Testing"],
-    projectTheme: "Build a mobile-style habit tracker backed by Firebase."
+    coreSkills: ["Flutter", "React Native", "Kotlin", "Swift", "Firebase", "REST API"],
+    helpfulSkills: ["Android Studio", "Xcode", "Dart", "Git", "Postman"],
+    projectTheme: "Build a mobile habit tracker with Firebase persistence and a small API integration."
   },
   {
-    title: "QA Tester",
-    coreSkills: ["Unit Testing", "Cypress", "Jest", "Git", "REST API"],
-    helpfulSkills: ["JavaScript", "JUnit", "PHPUnit", "CI/CD"],
-    projectTheme: "Create a test plan and automated test suite for a web form."
+    title: "Flutter Developer",
+    coreSkills: ["Flutter", "Dart", "Firebase", "REST API", "Android Studio"],
+    helpfulSkills: ["Xcode", "Git", "Postman"],
+    projectTheme: "Build a Flutter app with Firebase login-style state, CRUD screens, and API data.",
+    requiredSkillGroups: [["Flutter"], ["Dart"]]
+  },
+  {
+    title: "Android Developer",
+    coreSkills: ["Kotlin", "Android Studio", "Firebase", "REST API", "Java"],
+    helpfulSkills: ["Git", "Postman"],
+    projectTheme: "Build an Android app with local state, Firebase storage, and API-backed screens.",
+    requiredSkillGroups: [["Android Studio", "Kotlin"]]
+  },
+  {
+    title: "iOS Developer",
+    coreSkills: ["Swift", "Xcode", "Firebase", "REST API"],
+    helpfulSkills: ["Git", "Postman"],
+    projectTheme: "Build an iOS app with Swift screens, Firebase persistence, and API data.",
+    requiredSkillGroups: [["Xcode", "Swift"]]
+  },
+  {
+    title: "QA Engineer",
+    coreSkills: ["Postman", "Selenium", "Cypress", "Playwright", "Jest"],
+    helpfulSkills: ["JUnit", "PHPUnit", "SoapUI", "Git", "REST API"],
+    projectTheme: "Create a manual test plan and automated regression checks for a web form."
+  },
+  {
+    title: "Automation Tester",
+    coreSkills: ["Selenium", "Cypress", "Playwright", "Cucumber", "GitHub"],
+    helpfulSkills: ["Jest", "CI/CD", "Postman", "JavaScript"],
+    projectTheme: "Build an automated browser test suite with CI-ready test commands.",
+    requiredSkillGroups: [["Selenium", "Cypress", "Playwright"]]
   },
   {
     title: "Data Analyst",
-    coreSkills: ["Python", "PostgreSQL", "MySQL", "Supabase", "Git"],
-    helpfulSkills: ["AI API Integration", "Prompt Engineering"],
-    projectTheme: "Analyze a small dataset and publish a clear insight report."
+    coreSkills: ["SQL", "Excel", "Power BI", "Tableau", "Python", "Pandas"],
+    helpfulSkills: ["Google Sheets", "Looker Studio", "NumPy", "MySQL", "PostgreSQL"],
+    projectTheme: "Analyze a sales dataset and publish a dashboard with clear business insights."
   },
   {
-    title: "DevOps Junior Engineer",
-    coreSkills: ["Git", "Linux", "Docker", "CI/CD", "AWS"],
-    helpfulSkills: ["Kubernetes", "Node.js", "REST API"],
-    projectTheme: "Containerize a simple app and deploy it through CI."
+    title: "BI Developer",
+    coreSkills: ["Power BI", "Tableau", "SQL", "Excel", "Looker Studio"],
+    helpfulSkills: ["PostgreSQL", "MySQL", "Python", "Google Sheets"],
+    projectTheme: "Build a BI dashboard with calculated metrics, filters, and source-data documentation.",
+    requiredSkillGroups: [["Power BI", "Tableau"]]
   },
   {
-    title: "UI/UX Developer",
-    coreSkills: ["Figma", "UI Design", "UX Research", "Responsive Design", "HTML", "CSS"],
-    helpfulSkills: ["React", "Tailwind CSS", "JavaScript"],
-    projectTheme: "Design and build a polished responsive product landing flow."
+    title: "Data Engineer",
+    coreSkills: ["Python", "SQL", "PostgreSQL", "MySQL", "Docker", "Git"],
+    helpfulSkills: ["Redis", "AWS", "Linux", "Pandas"],
+    projectTheme: "Build a small ETL pipeline that cleans data and loads it into a relational database."
+  },
+  {
+    title: "Data Scientist",
+    coreSkills: ["Python", "Pandas", "NumPy", "scikit-learn", "SQL"],
+    helpfulSkills: ["TensorFlow", "PyTorch", "Power BI", "Tableau"],
+    projectTheme: "Train and explain a beginner-friendly prediction model from a clean dataset."
+  },
+  {
+    title: "AI/ML Engineer",
+    coreSkills: ["Python", "TensorFlow", "PyTorch", "scikit-learn", "Hugging Face"],
+    helpfulSkills: ["NumPy", "Pandas", "Docker", "Git"],
+    projectTheme: "Build a simple ML inference service with model loading, validation, and documented results.",
+    requiredSkillGroups: [["Python"], ["TensorFlow", "PyTorch", "scikit-learn"]]
   },
   {
     title: "AI Integration Developer",
-    coreSkills: ["JavaScript", "Python", "Prompt Engineering", "AI API Integration", "Hugging Face", "REST API"],
-    helpfulSkills: ["OpenAI API", "LangChain", "Node.js", "TypeScript"],
-    projectTheme: "Build an AI helper that calls an API and validates structured output."
+    coreSkills: ["Hugging Face", "OpenAI API", "LangChain", "RAG", "Vector Database", "LLM API Integration"],
+    helpfulSkills: ["Python", "JavaScript", "TypeScript", "Node.js", "REST API"],
+    projectTheme: "Build an AI helper that calls an LLM API, validates structured output, and shows safe fallback handling.",
+    requiredSkillGroups: [["Hugging Face", "OpenAI API", "LangChain", "RAG", "Vector Database", "LLM API Integration"]]
+  },
+  {
+    title: "DevOps Engineer",
+    coreSkills: ["Git", "GitHub", "Linux", "Docker", "CI/CD", "Kubernetes"],
+    helpfulSkills: ["Terraform", "Nginx", "Apache", "AWS", "Azure", "GCP"],
+    projectTheme: "Containerize a web app and document a CI/CD deployment flow with environment variables."
+  },
+  {
+    title: "Cloud Engineer",
+    coreSkills: ["AWS", "Azure", "GCP", "Linux", "Docker", "Terraform"],
+    helpfulSkills: ["Kubernetes", "CI/CD", "Nginx", "GitHub"],
+    projectTheme: "Deploy a small app to a cloud platform with environment configuration and rollback notes.",
+    requiredSkillGroups: [["AWS", "Azure", "GCP"]]
   }
 ];
-
