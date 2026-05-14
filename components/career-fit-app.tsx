@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SkillSelector } from "./skill-selector";
 import { SkillRow } from "./skill-row";
 import { ResultCard } from "./result-card";
@@ -30,6 +30,7 @@ export function CareerFitApp() {
   const [analysisError, setAnalysisError] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
   const [loadingIndex, setLoadingIndex] = useState(0);
+  const analyzeInFlight = useRef(false);
 
   useEffect(() => {
     try {
@@ -99,11 +100,17 @@ export function CareerFitApp() {
   }
 
   async function analyze() {
+    if (analyzeInFlight.current || status === "loading") {
+      debugClient("duplicate_analyze_blocked");
+      return;
+    }
+
     if (!canAnalyze) {
       setAnalysisError("Complete every skill level and month value before analyzing.");
       return;
     }
 
+    analyzeInFlight.current = true;
     setStatus("loading");
     setAnalysisError("");
     setCopyStatus("");
@@ -133,6 +140,8 @@ export function CareerFitApp() {
     } catch {
       setStatus("error");
       setAnalysisError("Unable to analyze your skill profile right now. Please try again.");
+    } finally {
+      analyzeInFlight.current = false;
     }
   }
 
@@ -322,4 +331,12 @@ function toApiSkillInput(skills: SelectedSkillDraft[]): SkillInput[] {
     level: skill.level as "strong" | "basic" | "weak",
     experienceMonths: skill.experienceMonths as number
   }));
+}
+
+function debugClient(event: string) {
+  if (process.env.NODE_ENV === "production") {
+    return;
+  }
+
+  console.info(`[careerfit-client] ${event}`);
 }

@@ -54,6 +54,20 @@ export const CareerMatchResultSchema = z.object({
   emailReport: z.string().trim().min(20).max(6000)
 });
 
+export const AiCareerRoleRefinementSchema = z.object({
+  rank: z.number().int().min(1).max(3),
+  roleTitle: RoleTitleSchema,
+  reasoning: z.string().trim().min(20).max(900)
+});
+
+export const AiCareerRefinementSchema = z.object({
+  topRoles: z.array(AiCareerRoleRefinementSchema).length(3),
+  overallSummary: z.string().trim().min(20).max(1200),
+  strongestPath: z.string().trim().min(2).max(120),
+  warnings: z.array(z.string().trim().min(1).max(220)).max(6),
+  emailSubject: z.string().trim().min(5).max(120).optional().catch(undefined)
+});
+
 export const SendReportRequestSchema = z.object({
   email: z.string().trim().email().max(254),
   report: CareerMatchResultSchema.refine((result) => result.emailReport.length <= 6000, {
@@ -66,5 +80,7 @@ export type SkillInput = z.infer<typeof SkillInputSchema>;
 export type AnalyzeCareerRequest = z.infer<typeof AnalyzeCareerRequestSchema>;
 export type CareerRoleResult = z.infer<typeof CareerRoleResultSchema>;
 export type CareerMatchResult = z.infer<typeof CareerMatchResultSchema>;
+export type AiCareerRoleRefinement = z.infer<typeof AiCareerRoleRefinementSchema>;
+export type AiCareerRefinement = z.infer<typeof AiCareerRefinementSchema>;
 export type SendReportRequest = z.infer<typeof SendReportRequestSchema>;
 
