@@ -145,6 +145,13 @@ async function requestRefinement(
     return { result: null, retryable: !retry, reason: "role_title_mismatch" };
   }
 
+  if (!hasVisibleRefinementChanges(refinement.data, params.deterministicResult)) {
+    debugAi("no_effective_change", {
+      retry
+    });
+    return { result: null, retryable: !retry, reason: "no_effective_change" };
+  }
+
   const finalResult = normalizeRefinement(refinement.data, params.deterministicResult);
   const validatedResult = CareerMatchResultSchema.safeParse(finalResult);
 
@@ -168,12 +175,21 @@ async function requestRefinement(
 }
 
 function buildUserPrompt(skills: SkillInput[], deterministicResult: CareerMatchResult, retry: boolean) {
+  const promptCandidates = buildPromptCandidates(deterministicResult);
+
   if (retry) {
     return `Return only minified valid JSON. No markdown. No explanations. No literal line breaks inside string values. Do not include emailReport body. Use only exact candidate role titles. The root keys must be topRoles, overallSummary, strongestPath, warnings, emailSubject. warnings must be [] unless deterministicSummary has warnings. Each topRoles item must include only rank, roleTitle, reasoning. Preserve rank and roleTitle exactly from candidateRoles.
+Rewrite overallSummary and every reasoning field with fresh wording.
+Do not copy any full sentence from deterministic summary text.
+Use supportingSkills and missingSkills from candidateRoles to explain fit and gaps.
+Each reasoning should be 1-2 short sentences and visibly different from the deterministic text.
 
-candidateRoles:${JSON.stringify(deterministicResult.topRoles)}
+candidateRoles:${JSON.stringify(promptCandidates)}
 selectedSkills:${JSON.stringify(skills)}
-deterministicSummary:${JSON.stringify({ warnings: deterministicResult.warnings })}
+deterministicSummary:${JSON.stringify({
+      overallSummary: deterministicResult.overallSummary,
+      warnings: deterministicResult.warnings
+    })}
 strongestPath:${JSON.stringify(deterministicResult.topRoles[0]?.roleTitle ?? deterministicResult.strongestPath)}`;
   }
 
@@ -191,7 +207,11 @@ roleTitle values must be exact values from allowedRoleCatalog and exact values f
 strongestPath must be "${deterministicResult.topRoles[0]?.roleTitle ?? deterministicResult.strongestPath}".
 warnings must be [] unless deterministicSummary contains warnings.
 emailSubject must be a short email subject.
-You may improve only the user-facing wording fields: reasoning, overallSummary, and emailSubject. If unsure, copy the candidate reasoning exactly.
+You may improve only the user-facing wording fields: reasoning, overallSummary, and emailSubject.
+Write fresh wording for overallSummary and every reasoning field.
+Do not copy any full sentence from deterministic summary text.
+Use supportingSkills and missingSkills from candidateRoles to explain fit and gaps.
+Each reasoning should be 1-2 short sentences and visibly different from the deterministic wording.
 
 allowedRoleCatalog:
 ${JSON.stringify(allowedRoleCatalog)}
@@ -200,7 +220,7 @@ selectedSkills:
 ${JSON.stringify(skills)}
 
 candidateRoles:
-${JSON.stringify(deterministicResult.topRoles)}
+${JSON.stringify(promptCandidates)}
 
 deterministicSummary:
 ${JSON.stringify({
@@ -208,6 +228,40 @@ ${JSON.stringify({
   strongestPath: deterministicResult.strongestPath,
   warnings: deterministicResult.warnings
 })}`;
+}
+
+export function buildPromptCandidates(deterministicResult: CareerMatchResult) {
+  return deterministicResult.topRoles.map((role) => ({
+    rank: role.rank,
+    roleTitle: role.roleTitle,
+    roleLevel: role.roleLevel,
+    matchScore: role.matchScore,
+    confidence: role.confidence,
+    supportingSkills: role.supportingSkills,
+    missingSkills: role.missingSkills
+  }));
+}
+
+export function hasVisibleRefinementChanges(
+  refinement: {
+    topRoles: Array<{
+      rank: number;
+      roleTitle: CareerMatchResult["topRoles"][number]["roleTitle"];
+      reasoning: string;
+    }>;
+    overallSummary: string;
+  },
+  deterministicResult: CareerMatchResult
+) {
+  if (normalizeComparableText(refinement.overallSummary) !== normalizeComparableText(deterministicResult.overallSummary)) {
+    return true;
+  }
+
+  const deterministicByTitle = new Map(deterministicResult.topRoles.map((role) => [role.roleTitle, role.reasoning]));
+  return refinement.topRoles.some((role) => {
+    const deterministicReasoning = deterministicByTitle.get(role.roleTitle) ?? "";
+    return normalizeComparableText(role.reasoning) !== normalizeComparableText(deterministicReasoning);
+  });
 }
 
 function normalizeRefinement(refinement: {
@@ -243,6 +297,10 @@ function normalizeRefinement(refinement: {
 
 function extractContent(data: HuggingFaceResponse) {
   return data.choices?.[0]?.message?.content ?? data.generated_text ?? data.text;
+}
+
+function normalizeComparableText(value: string) {
+  return value.replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 function debugAi(event: string, details: Record<string, unknown>) {
