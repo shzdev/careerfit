@@ -1,4 +1,4 @@
-import { roleProfiles, skillToCategory, type RoleProfile } from "./catalog";
+import { roleProfiles, type RoleProfile } from "./catalog";
 import { toSafeReport } from "./report";
 import type { CareerMatchResult, CareerRoleResult, SkillInput, SkillLevel } from "./schemas";
 
@@ -10,14 +10,23 @@ const levelWeights: Record<SkillLevel, number> = {
 };
 
 const genericSkillGroups: Record<string, string[]> = {
-  Database: ["MySQL", "PostgreSQL", "MongoDB", "Firebase", "Supabase"],
-  Testing: ["Unit Testing", "Jest", "JUnit", "PHPUnit", "Cypress"]
+  Frontend: ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Next.js", "Vue", "Nuxt", "Angular", "Tailwind CSS", "Bootstrap", "jQuery"],
+  Backend: ["Node.js", "Express", "NestJS", "Spring Boot", "Laravel", "Django", "FastAPI", "ASP.NET Core", "REST API", "GraphQL", "PHP", "Java", "C#"],
+  Database: ["SQL", "MySQL", "PostgreSQL", "MongoDB", "Firebase", "Supabase", "Redis", "Oracle"],
+  Testing: ["Postman", "Selenium", "Cypress", "Playwright", "Jest", "JUnit", "PHPUnit", "Cucumber", "SoapUI"],
+  Cloud: ["AWS", "Azure", "GCP"],
+  BI: ["Power BI", "Tableau", "Looker Studio"],
+  AIIntegration: ["Hugging Face", "OpenAI API", "LangChain", "RAG", "Vector Database", "LLM API Integration"],
+  MLLibrary: ["TensorFlow", "PyTorch", "scikit-learn"]
 };
+
+type ScoredRole = Omit<CareerRoleResult, "rank">;
 
 export function buildRuleBasedResult(skills: SkillInput[], extraWarnings: string[] = []): CareerMatchResult {
   const normalized = dedupeSkills(skills);
   const scored = roleProfiles
     .map((profile) => scoreRole(profile, normalized))
+    .filter((role): role is ScoredRole => role !== null)
     .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, 3)
     .map((role, index) => ({ ...role, rank: index + 1 }));
@@ -39,8 +48,13 @@ export function buildRuleBasedResult(skills: SkillInput[], extraWarnings: string
   });
 }
 
-function scoreRole(profile: RoleProfile, skills: SkillInput[]): Omit<CareerRoleResult, "rank"> {
+function scoreRole(profile: RoleProfile, skills: SkillInput[]): ScoredRole | null {
   const skillMap = new Map(skills.map((skill) => [skill.name, skill]));
+
+  if (!meetsRequiredSkillGroups(profile, skillMap)) {
+    return null;
+  }
+
   const supportingSkills = skills
     .filter((skill) => matchesRequirement(profile, skill.name) && skill.level !== "unknown")
     .map((skill) => skill.name);
@@ -99,6 +113,10 @@ function hasRequirement(skillMap: Map<string, SkillInput>, requirement: string):
   return Boolean(skill && skill.level !== "weak" && skill.level !== "unknown");
 }
 
+function meetsRequiredSkillGroups(profile: RoleProfile, skillMap: Map<string, SkillInput>) {
+  return (profile.requiredSkillGroups ?? []).every((group) => group.some((requirement) => hasRequirement(skillMap, requirement)));
+}
+
 function matchesRequirement(profile: RoleProfile, skillName: string) {
   return [...profile.coreSkills, ...profile.helpfulSkills].some((requirement) => {
     return requirement === skillName || genericSkillGroups[requirement]?.includes(skillName);
@@ -114,8 +132,8 @@ function totalRelevantMonths(skills: SkillInput[], profile: RoleProfile) {
 function foundationPenaltyFor(profile: RoleProfile, skillMap: Map<string, SkillInput>) {
   let penalty = 0;
 
-  if (["Frontend Developer", "React Developer", "Full Stack Developer", "UI/UX Developer"].includes(profile.title)) {
-    if (!hasRequirement(skillMap, "Responsive Design")) penalty += 6;
+  if (["Web Developer", "Frontend Developer", "React Developer", "Next.js Developer", "Full Stack Developer"].includes(profile.title)) {
+    if (!hasRequirement(skillMap, "Git")) penalty += 4;
   }
 
   if (["Backend Developer", "Node.js Developer", "Full Stack Developer", "Java Developer", "Laravel Developer"].includes(profile.title)) {
@@ -123,8 +141,24 @@ function foundationPenaltyFor(profile: RoleProfile, skillMap: Map<string, SkillI
     if (!hasRequirement(skillMap, "Testing")) penalty += 5;
   }
 
-  if (["DevOps Junior Engineer", "Full Stack Developer", "AI Integration Developer"].includes(profile.title)) {
+  if (["Backend Developer", "Node.js Developer", "Full Stack Developer", "Laravel Developer", "Data Engineer"].includes(profile.title)) {
+    if (!hasRequirement(skillMap, "Database")) penalty += 5;
+  }
+
+  if (["DevOps Engineer", "Cloud Engineer", "AI Integration Developer"].includes(profile.title)) {
     if (!hasRequirement(skillMap, "Git")) penalty += 5;
+  }
+
+  if (["Cloud Engineer", "DevOps Engineer"].includes(profile.title) && !hasRequirement(skillMap, "Linux")) {
+    penalty += 4;
+  }
+
+  if (["Data Analyst", "BI Developer", "Data Engineer", "Data Scientist"].includes(profile.title) && !hasRequirement(skillMap, "SQL")) {
+    penalty += 5;
+  }
+
+  if (["AI Integration Developer"].includes(profile.title) && !hasRequirement(skillMap, "REST API")) {
+    penalty += 5;
   }
 
   return penalty;
