@@ -38,7 +38,7 @@ export const CareerRoleResultSchema = z.object({
   roleLevel: z.enum(roleLevelValues),
   matchScore: z.number().int().min(0).max(100),
   confidence: z.enum(confidenceValues),
-  reasoning: z.string().trim().min(20).max(900),
+  reasoning: z.string().trim().min(80).max(900),
   supportingSkills: z.array(z.string().trim().min(1).max(80)).max(12),
   missingSkills: z.array(z.string().trim().min(1).max(80)).max(12),
   recommendedProjects: TextArraySchema.max(4),
@@ -57,7 +57,7 @@ export const CareerMatchResultSchema = z.object({
 export const AiCareerRoleRefinementSchema = z.object({
   rank: z.number().int().min(1).max(3),
   roleTitle: RoleTitleSchema,
-  reasoning: z.string().trim().min(20).max(900)
+  reasoning: z.string().trim().min(80).max(900)
 });
 
 export const AiCareerRefinementSchema = z.object({

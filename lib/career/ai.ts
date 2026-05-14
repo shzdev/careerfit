@@ -182,7 +182,7 @@ function buildUserPrompt(skills: SkillInput[], deterministicResult: CareerMatchR
 Rewrite overallSummary and every reasoning field with fresh wording.
 Do not copy any full sentence from deterministic summary text.
 Use supportingSkills and missingSkills from candidateRoles to explain fit and gaps.
-Each reasoning should be 1-2 short sentences and visibly different from the deterministic text.
+Each reasoning should be 2-3 concise sentences, at least 80 characters long, and visibly different from the deterministic text.
 
 candidateRoles:${JSON.stringify(promptCandidates)}
 selectedSkills:${JSON.stringify(skills)}
@@ -211,7 +211,7 @@ You may improve only the user-facing wording fields: reasoning, overallSummary, 
 Write fresh wording for overallSummary and every reasoning field.
 Do not copy any full sentence from deterministic summary text.
 Use supportingSkills and missingSkills from candidateRoles to explain fit and gaps.
-Each reasoning should be 1-2 short sentences and visibly different from the deterministic wording.
+Each reasoning should be 2-3 concise sentences, at least 80 characters long, and visibly different from the deterministic wording.
 
 allowedRoleCatalog:
 ${JSON.stringify(allowedRoleCatalog)}

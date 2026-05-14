@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildPromptCandidates, hasVisibleRefinementChanges } from "../lib/career/ai";
 import { buildRuleBasedResult } from "../lib/career/scoring";
 import { skillToCategory } from "../lib/career/catalog";
-import type { SkillInput, SkillLevel } from "../lib/career/schemas";
+import { AiCareerRoleRefinementSchema, CareerRoleResultSchema, type SkillInput, type SkillLevel } from "../lib/career/schemas";
 
 function input(name: string, level: SkillLevel = "strong", experienceMonths = 12): SkillInput {
   const category = skillToCategory[name];
@@ -78,5 +78,31 @@ describe("AI refinement prompt helpers", () => {
         deterministicResult
       )
     ).toBe(true);
+  });
+
+  it("rejects reasoning that is too short to be useful", () => {
+    const deterministicResult = buildRuleBasedResult([
+      input("React", "strong", 12),
+      input("TypeScript", "basic", 6),
+      input("REST API", "basic", 6),
+      input("Git", "basic", 6)
+    ]);
+    const role = deterministicResult.topRoles[0];
+    const shortReasoning = "Strong React fit with API exposure, but the explanation is still too thin.";
+
+    expect(
+      AiCareerRoleRefinementSchema.safeParse({
+        rank: role.rank,
+        roleTitle: role.roleTitle,
+        reasoning: shortReasoning
+      }).success
+    ).toBe(false);
+
+    expect(
+      CareerRoleResultSchema.safeParse({
+        ...role,
+        reasoning: shortReasoning
+      }).success
+    ).toBe(false);
   });
 });
