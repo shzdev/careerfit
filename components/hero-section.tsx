@@ -17,7 +17,7 @@ export function HeroSection() {
           CareerFit AI
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-300 sm:text-lg">
-          Match your current technical skills to realistic IT roles, then get a practical learning path you can act on this week.
+          Turn your technical skills into clear career direction with structured role matching and AI-assisted guidance.
         </p>
       </div>
     </section>
