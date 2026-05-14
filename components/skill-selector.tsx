@@ -88,7 +88,7 @@ export function SkillSelector({
         <p className="text-sm font-medium uppercase text-cyan-200">IT CAREER ROLE MATCHER</p>
         <h1 className="mt-5 font-display text-5xl font-semibold leading-tight text-white sm:text-7xl">CareerFit AI</h1>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-300 sm:text-lg">
-          Match your current technical skills to realistic IT roles, then get a practical learning path you can act on this week.
+          Turn your technical skills into clear career direction with structured role matching and AI-assisted guidance.
         </p>
       </div>
 
