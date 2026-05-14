@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { getTechLogo } from "@/lib/career/tech-logos";
+
 type SelectedSkillDraft = {
   name: string;
   category: string;
@@ -17,6 +20,8 @@ type SkillRowProps = {
 const maxMonths = 120;
 
 export function SkillRow({ skill, validationMessage, onChange, onRemove }: SkillRowProps) {
+  const [iconSrc, setIconSrc] = useState(() => getTechLogo(skill.name as never));
+
   function setMonths(value: string) {
     if (value.trim() === "") {
       onChange({ ...skill, experienceMonths: "" });
@@ -41,8 +46,14 @@ export function SkillRow({ skill, validationMessage, onChange, onRemove }: Skill
   return (
     <article className="rounded-lg border border-line bg-white/[0.045] p-4">
       <div className="flex gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-line bg-zinc-900/80 text-xs font-semibold uppercase text-zinc-500">
-          Icon
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-line bg-zinc-900/80">
+          <img
+            src={iconSrc}
+            alt={`${skill.name} logo`}
+            className="h-10 w-10 object-contain"
+            loading="lazy"
+            onError={() => setIconSrc("https://api.iconify.design/mdi:puzzle-outline.svg")}
+          />
         </div>
 
         <div className="min-w-0 flex-1">
